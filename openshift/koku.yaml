@@ -36,12 +36,16 @@ objects:
       targetPort: 8080
     selector:
       name: ${NAME}
+
 - apiVersion: v1
   kind: ImageStream
   metadata:
     name: ${NAME}
     annotations:
       description: "Keeps track of changes in the application image"
+  spec:
+    lookupPolicy:
+      local: false
 
 - apiVersion: v1
   kind: BuildConfig
@@ -142,6 +146,16 @@ objects:
         timeoutSeconds: 600
         maxSurge: 25%
         maxUnavailable: 25%
+        pre:
+          execNewPod:
+            command:
+            - /bin/bash
+            - -c
+            - sleep 30 &&
+            - scl enable rh-python36 "/opt/app-root/src/koku/manage.py migrate_schemas --noinput" &&
+            - sleep 180
+            containerName: ${NAME}
+          failurePolicy: Retry
     template:
       metadata:
         labels:
@@ -151,12 +165,15 @@ objects:
       spec:
         containers:
         - name: ${NAME}
-          image: ${NAME}
+          image: ${NAMESPACE}/${NAME}:latest
+          imagePullPolicy: Always
           volumeMounts:
           - name: ssl-cert
             mountPath: /etc/ssl/certs
             readOnly: true
           env:
+            - name: DISABLE_MIGRATE
+              value: "true"
             - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:
