@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 """Database accessor for Azure report data."""
+import datetime
 import logging
 import pkgutil
 import uuid
@@ -184,7 +185,8 @@ class AzureReportDBAccessor(ReportDBAccessorBase):
             summary_item_query = base_query.filter(cost_entry_bill_id=bill_id)
             return summary_item_query
 
-    def populate_ocp_on_azure_cost_daily_summary(self, start_date, end_date, cluster_id, bill_ids):
+    def populate_ocp_on_azure_cost_daily_summary(self, start_date: datetime.date, end_date: datetime.date,  # noqa: E501 pylint: disable=C0301
+                                                 cluster_id, bill_ids) -> None:
         """Populate the daily cost aggregated summary for OCP on AWS.
 
         Args:

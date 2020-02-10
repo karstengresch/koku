@@ -15,11 +15,12 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 """Database accessor for report data."""
+import datetime
 import logging
 import pkgutil
 import uuid
+from typing import Optional
 
-from dateutil.parser import parse
 from django.db.models import F
 from jinjasql import JinjaSql
 from tenant_schemas.utils import schema_context
@@ -90,7 +91,7 @@ class AWSReportDBAccessor(ReportDBAccessorBase):
         """Return all cost entry bills for provider_uuid on date."""
         bills = self.get_cost_entry_bills_query_by_provider(provider_uuid)
         if start_date:
-            bill_date = parse(start_date).replace(day=1)
+            bill_date = bill_date = start_date.replace(day=1)
             bills = bills.filter(billing_period_start=bill_date)
         return bills
 

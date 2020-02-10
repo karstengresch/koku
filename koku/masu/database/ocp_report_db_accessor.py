@@ -19,6 +19,7 @@ import datetime
 import logging
 import pkgutil
 import uuid
+from typing import Optional
 
 from dateutil.parser import parse
 from dateutil.rrule import MONTHLY
