@@ -236,7 +236,9 @@ def sync_data_to_customer(dump_request_uuid):
 
 
 @app.task(name="masu.celery.tasks.query_and_upload_to_s3", queue_name="query_upload")
-def query_and_upload_to_s3(schema_name, provider_uuid, table_export_setting, start_date: datetime.date, end_date: datetime.date) -> None:  # noqa: E501
+def query_and_upload_to_s3(
+    schema_name, provider_uuid, table_export_setting, start_date: datetime.date, end_date: datetime.date
+) -> None:  # noqa: E501
 
     """
     Query the database and upload the results to s3.
