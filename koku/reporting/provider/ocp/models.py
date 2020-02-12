@@ -132,7 +132,7 @@ class OCPUsageLineItemDaily(models.Model):
 
     id = models.BigAutoField(primary_key=True)
 
-    report_period = models.ForeignKey("OCPUsageReportPeriod", on_delete=models.CASCADE, null=True)
+    report_period = models.ForeignKey("OCPUsageReportPeriod", on_delete=models.CASCADE)
 
     cluster_id = models.CharField(max_length=50, null=True)
 
@@ -207,7 +207,7 @@ class OCPUsageLineItemDailySummary(models.Model):
 
     id = models.BigAutoField(primary_key=True)
 
-    report_period = models.ForeignKey("OCPUsageReportPeriod", on_delete=models.CASCADE, null=True)
+    report_period = models.ForeignKey("OCPUsageReportPeriod", on_delete=models.CASCADE)
 
     cluster_id = models.CharField(max_length=50, null=True)
 
@@ -367,7 +367,7 @@ class OCPStorageLineItemDaily(models.Model):
 
     id = models.BigAutoField(primary_key=True)
 
-    report_period = models.ForeignKey("OCPUsageReportPeriod", on_delete=models.CASCADE, null=True)
+    report_period = models.ForeignKey("OCPUsageReportPeriod", on_delete=models.CASCADE)
 
     cluster_id = models.CharField(max_length=50, null=True)
 

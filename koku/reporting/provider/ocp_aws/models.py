@@ -40,7 +40,7 @@ class OCPAWSCostLineItemDailySummary(models.Model):
         ]
 
     # OCP Fields
-    report_period = models.ForeignKey("OCPUsageReportPeriod", on_delete=models.CASCADE, null=True)
+    report_period = models.ForeignKey("OCPUsageReportPeriod", on_delete=models.CASCADE)
 
     cluster_id = models.CharField(max_length=50, null=True)
 
@@ -60,7 +60,7 @@ class OCPAWSCostLineItemDailySummary(models.Model):
     usage_end = models.DateTimeField(null=False)
 
     # AWS Fields
-    cost_entry_bill = models.ForeignKey("AWSCostEntryBill", on_delete=models.CASCADE, null=True)
+    cost_entry_bill = models.ForeignKey("AWSCostEntryBill", on_delete=models.CASCADE)
 
     product_code = models.CharField(max_length=50, null=False)
 
@@ -123,7 +123,7 @@ class OCPAWSCostLineItemProjectDailySummary(models.Model):
         ]
 
     # OCP Fields
-    report_period = models.ForeignKey("OCPUsageReportPeriod", on_delete=models.CASCADE, null=True)
+    report_period = models.ForeignKey("OCPUsageReportPeriod", on_delete=models.CASCADE)
 
     cluster_id = models.CharField(max_length=50, null=True)
 
@@ -148,7 +148,7 @@ class OCPAWSCostLineItemProjectDailySummary(models.Model):
     usage_end = models.DateTimeField(null=False)
 
     # AWS Fields
-    cost_entry_bill = models.ForeignKey("AWSCostEntryBill", on_delete=models.CASCADE, null=True)
+    cost_entry_bill = models.ForeignKey("AWSCostEntryBill", on_delete=models.CASCADE)
 
     product_code = models.CharField(max_length=50, null=False)
 

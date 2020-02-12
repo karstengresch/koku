@@ -131,7 +131,7 @@ class AWSCostEntryLineItemDaily(models.Model):
 
     id = models.BigAutoField(primary_key=True)
 
-    cost_entry_bill = models.ForeignKey("AWSCostEntryBill", on_delete=models.CASCADE, null=True)
+    cost_entry_bill = models.ForeignKey("AWSCostEntryBill", on_delete=models.CASCADE)
     cost_entry_product = models.ForeignKey("AWSCostEntryProduct", on_delete=models.SET_NULL, null=True)
     cost_entry_pricing = models.ForeignKey("AWSCostEntryPricing", on_delete=models.SET_NULL, null=True)
     cost_entry_reservation = models.ForeignKey("AWSCostEntryReservation", on_delete=models.SET_NULL, null=True)
@@ -186,7 +186,7 @@ class AWSCostEntryLineItemDailySummary(models.Model):
 
     id = models.BigAutoField(primary_key=True)
 
-    cost_entry_bill = models.ForeignKey("AWSCostEntryBill", on_delete=models.CASCADE, null=True)
+    cost_entry_bill = models.ForeignKey("AWSCostEntryBill", on_delete=models.CASCADE)
 
     # The following fields are used for grouping
     usage_start = models.DateTimeField(null=False)

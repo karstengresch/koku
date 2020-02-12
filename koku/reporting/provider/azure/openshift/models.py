@@ -40,7 +40,7 @@ class OCPAzureCostLineItemDailySummary(models.Model):
         ]
 
     # OCP Fields
-    report_period = models.ForeignKey("OCPUsageReportPeriod", on_delete=models.CASCADE, null=True)
+    report_period = models.ForeignKey("OCPUsageReportPeriod", on_delete=models.CASCADE)
 
     cluster_id = models.CharField(max_length=50, null=True)
 
@@ -117,7 +117,7 @@ class OCPAzureCostLineItemProjectDailySummary(models.Model):
         ]
 
     # OCP Fields
-    report_period = models.ForeignKey("OCPUsageReportPeriod", on_delete=models.CASCADE, null=True)
+    report_period = models.ForeignKey("OCPUsageReportPeriod", on_delete=models.CASCADE)
 
     cluster_id = models.CharField(max_length=50, null=True)
 
