@@ -11,7 +11,10 @@ HEADER_X_RH_IDENTITY = "X-Rh-Identity"
 
 def get_auth_header(request):
     """Get the auth header from the request."""
-    return request.headers.get(HEADER_X_RH_IDENTITY)
+    header = request.headers.get(HEADER_X_RH_IDENTITY)
+    if isinstance(header, bytes):
+        header = header.decode("utf-8")
+    return header
 
 
 def get_account_from_header(request):
