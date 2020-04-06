@@ -80,6 +80,9 @@ class CURAccountsDB(CURAccountsInterface):
             elif provider_uuid and provider and not provider.active:
                 LOG.info(f"Provider {provider.uuid} is not active. Processing suspended...")
                 return []
+            elif provider_uuid:
+                LOG.info(f"Provider {provider.uuid} not found. Skipping processing...")
+                return []
 
             for _, provider in all_providers.items():
                 if provider.active is False:
