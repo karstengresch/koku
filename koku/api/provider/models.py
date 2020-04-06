@@ -182,7 +182,7 @@ class Provider(models.Model):
         # Commit the new/updated Provider to the DB
         super().save(*args, **kwargs)
 
-        if settings.AUTO_DATA_INGEST and should_ingest and self.active:
+        if settings.AUTO_DATA_INGEST and should_ingest and self.active and self.type != self.PROVIDER_OCP:
             # Local import of task function to avoid potential import cycle.
             from masu.celery.tasks import check_report_updates
 
