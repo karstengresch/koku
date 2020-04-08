@@ -372,8 +372,27 @@ async def process_message(app_type_id, msg_data):
         storage.enqueue_source_update(msg_data.get("source_id"))
 
 
+class MockConsumer(AIOKafkaConsumer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @asyncio.coroutine
+    def commit(self):
+        raise ValueError("FAKE ERROR")
+
+
+def get_consumer(event_loop):
+    return MockConsumer(
+        Config.SOURCES_TOPIC,
+        loop=event_loop,
+        bootstrap_servers=Config.SOURCES_KAFKA_ADDRESS,
+        group_id="hccm-sources",
+        enable_auto_commit=False,
+    )
+
+
 @KAFKA_CONNECTION_ERRORS_COUNTER.count_exceptions()
-async def listen_for_messages(consumer, application_source_id):  # pragma: no cover
+async def listen_for_messages(event_loop, application_source_id):  # pragma: no cover
     """
     Listen for Platform-Sources kafka messages.
 
@@ -387,6 +406,8 @@ async def listen_for_messages(consumer, application_source_id):  # pragma: no co
 
     """
     while True:
+        consumer = get_consumer(event_loop)
+        LOG.warning("STARTING CONSUMER...")
         await consumer.start()
         LOG.info("Listener started.  Waiting for messages...")
         try:
@@ -395,11 +416,23 @@ async def listen_for_messages(consumer, application_source_id):  # pragma: no co
                 msg = get_sources_msg_data(msg, application_source_id)
                 if msg:
                     LOG.info(f"Cost Management Message to process: {str(msg)}")
-                    await process_message(application_source_id, msg)
-                    await consumer.commit()
+                    try:
+                        await process_message(application_source_id, msg)
+                    except (InterfaceError, OperationalError) as err:
+                        connection.close()
+                        LOG.error(err)
+                        await asyncio.sleep(Config.RETRY_SECONDS)
+                        await consumer.seek_to_committed()
+                    else:
+                        await consumer.commit()
         except KafkaError as error:
             LOG.error(f"[listen_for_messages] Kafka error encountered: {type(error).__name__}: {error}", exc_info=True)
+        except Exception as error:
+            LOG.error(
+                f"[listen_for_messages] Unknown error encountered: {type(error).__name__}: {error}", exc_info=True
+            )
         finally:
+            LOG.warning("STOPPING CONSUMER...")
             await consumer.stop()
 
 
@@ -578,6 +611,17 @@ def check_kafka_connection():  # pragma: no cover
     return result
 
 
+def check_db_connection():
+    while True:
+        try:
+            connection.cursor()
+        except (OperationalError, InterfaceError) as err:
+            LOG.error(f"DB not connected...{err}")
+            time.sleep(10)
+        else:
+            return True
+
+
 def find_sources_proc():
     "Return the sources management command proc."
     for p in psutil.process_iter():
@@ -634,17 +678,12 @@ def asyncio_sources_thread(event_loop):  # pragma: no cover
     if check_kafka_connection():  # Next, check that Kafka is running
         LOG.info("Kafka is running...")
 
-    consumer = AIOKafkaConsumer(
-        Config.SOURCES_TOPIC,
-        loop=event_loop,
-        bootstrap_servers=Config.SOURCES_KAFKA_ADDRESS,
-        group_id="hccm-sources",
-        enable_auto_commit=False,
-    )
+    if check_db_connection():
+        LOG.info("DB is connected.")
 
     load_process_queue()
     try:  # Finally, after the connections are established, start the message processing tasks
-        event_loop.create_task(listen_for_messages(consumer, cost_management_type_id))
+        event_loop.create_task(listen_for_messages(event_loop, cost_management_type_id))
         event_loop.create_task(synchronize_sources(PROCESS_QUEUE, cost_management_type_id))
         event_loop.run_forever()
     except KeyboardInterrupt:
