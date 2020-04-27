@@ -85,7 +85,8 @@ class QueryParameters:
             if item not in self.parameters:
                 self.parameters[item] = OrderedDict()
 
-        if self.access:
+        LOG.critical("XXX: %s", self)
+        if self.access or request.user.access:
             self._configure_access_params(caller)
 
         self._set_time_scope_defaults()
